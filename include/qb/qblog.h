@@ -249,8 +249,10 @@ typedef const char *(*qb_log_tags_stringify_fn)(uint32_t tags);
 
 /**
  * An instance of this structure is created for each log message
+ * with the message-id
  */
 struct qb_log_callsite {
+	const char *message_id;
 	const char *function;
 	const char *filename;
 	const char *format;
@@ -305,6 +307,7 @@ void qb_log_from_external_source(const char *function,
  *
  * The result can then be passed into qb_log_real_()
  *
+ * @param message_id is the id of the message or NULL
  * @param function originating function name
  * @param filename originating filename
  * @param format format string
@@ -312,12 +315,23 @@ void qb_log_from_external_source(const char *function,
  * @param lineno file line number
  * @param tags the tag
  */
-struct qb_log_callsite* qb_log_callsite_get(const char *function,
+struct qb_log_callsite* qb_log_callsite_get(const char *message_id,
+					    const char *function,
 					    const char *filename,
 					    const char *format,
 					    uint8_t priority,
 					    uint32_t lineno,
 					    uint32_t tags);
+
+void qb_log_from_external_source_va2(const char *message_id,
+				    const char *function,
+				    const char *filename,
+				    const char *format,
+				    uint8_t priority,
+				    uint32_t lineno,
+				    uint32_t tags,
+				    va_list ap)
+	__attribute__ ((format (printf, 3, 0)));
 
 void qb_log_from_external_source_va(const char *function,
 				    const char *filename,
@@ -342,7 +356,7 @@ void qb_log_from_external_source_va(const char *function,
  */
 #define qb_logt(priority, tags, fmt, args...) do {	\
 	struct qb_log_callsite* descriptor_pt =		\
-	qb_log_callsite_get(__func__, __FILE__, fmt,	\
+	qb_log_callsite_get(NULL, __func__, __FILE__, fmt,	\
 			    priority, __LINE__, tags);	\
 	qb_log_real_(descriptor_pt, ##args);		\
     } while(0)

@@ -64,7 +64,8 @@ _syslog_logger(int32_t target,
 	}
 #ifdef USE_JOURNAL
 	if (t->use_journal) {
-		sd_journal_send("PRIORITY=%d", final_priority,
+		sd_journal_send("MESSAGE_ID=%s", cs->message_id,
+				"PRIORITY=%d", final_priority,
 				"CODE_LINE=%d", cs->lineno,
 				"CODE_FILE=%s", cs->filename,
 				"CODE_FUNC=%s", cs->function,
