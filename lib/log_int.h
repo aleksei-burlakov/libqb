@@ -125,6 +125,13 @@ void qb_log_thread_resume(struct qb_log_target *t);
 void qb_log_dcs_init(void);
 void qb_log_dcs_fini(void);
 struct qb_log_callsite *qb_log_dcs_get(int32_t *newly_created,
+				       const char *function,
+				       const char *filename,
+				       const char *format,
+				       uint8_t priority,
+				       uint32_t lineno,
+				       uint32_t tags);
+struct qb_log_callsite *qb_log_dcs_get2(int32_t *newly_created,
 				       const char *message_id,
 				       const char *function,
 				       const char *filename,

@@ -252,7 +252,6 @@ typedef const char *(*qb_log_tags_stringify_fn)(uint32_t tags);
  * with the message-id
  */
 struct qb_log_callsite {
-	const char *message_id;
 	const char *function;
 	const char *filename;
 	const char *format;
@@ -260,6 +259,10 @@ struct qb_log_callsite {
 	uint32_t lineno;
 	uint32_t targets;
 	uint32_t tags;
+	/* message_id must be the last argument to
+	 * make it compatible with the external
+	 * programs that don't use it */
+	const char *message_id;
 } __attribute__((aligned(8)));
 
 typedef void (*qb_log_filter_fn)(struct qb_log_callsite * cs);
@@ -315,7 +318,14 @@ void qb_log_from_external_source(const char *function,
  * @param lineno file line number
  * @param tags the tag
  */
-struct qb_log_callsite* qb_log_callsite_get(const char *message_id,
+struct qb_log_callsite* qb_log_callsite_get(const char *function,
+					    const char *filename,
+					    const char *format,
+					    uint8_t priority,
+					    uint32_t lineno,
+					    uint32_t tags);
+
+struct qb_log_callsite* qb_log_callsite_get2(const char *message_id,
 					    const char *function,
 					    const char *filename,
 					    const char *format,
@@ -331,7 +341,7 @@ void qb_log_from_external_source_va2(const char *message_id,
 				    uint32_t lineno,
 				    uint32_t tags,
 				    va_list ap)
-	__attribute__ ((format (printf, 3, 0)));
+	__attribute__ ((format (printf, 4, 0)));
 
 void qb_log_from_external_source_va(const char *function,
 				    const char *filename,
@@ -356,7 +366,7 @@ void qb_log_from_external_source_va(const char *function,
  */
 #define qb_logt(priority, tags, fmt, args...) do {	\
 	struct qb_log_callsite* descriptor_pt =		\
-	qb_log_callsite_get(NULL, __func__, __FILE__, fmt,	\
+	qb_log_callsite_get(__func__, __FILE__, fmt,	\
 			    priority, __LINE__, tags);	\
 	qb_log_real_(descriptor_pt, ##args);		\
     } while(0)
